@@ -115,6 +115,12 @@ def check_ship_beam_collisions(ai_settings, screen, stats, sb, ship, aliens, bea
         ship_hit(ai_settings, screen, stats, sb, ship, aliens, beams, bullets)
 
 
+def check_bunker_collisions(beams, bullets, bunkers):
+    """Check if any beams or bullets have collided with the bunkers"""
+    pygame.sprite.groupcollide(bullets, bunkers, True, True)
+    pygame.sprite.groupcollide(beams, bunkers, True, True)
+
+
 def update_bullets_beams(ai_settings, screen, stats, sb, ship, aliens, beams, bullets):
     """Update the positions of all bullets, remove bullets that are no longer visible"""
     bullets.update()
@@ -137,7 +143,7 @@ def check_high_score(stats, sb):
         sb.prep_high_score()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, play_button, stars):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, bunkers, play_button, stars):
     """Update images on the screen and flip to new screen"""
     screen.fill(ai_settings.bg_color)
     stars.update()
@@ -151,6 +157,8 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, 
     sb.show_score()
     ship.blitme()
     aliens.draw(screen)
+    check_bunker_collisions(beams, bullets, bunkers)
+    bunkers.update()
     if not stats.game_active:
         play_button.draw_button()
     pygame.display.flip()
@@ -159,14 +167,14 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, 
 def get_number_aliens(ai_settings, alien_width):
     """Determine the number of aliens that can fit in a row"""
     available_space_x = ai_settings.screen_width - 2 * alien_width
-    number_aliens_x = int(available_space_x / (2 * alien_width))
+    number_aliens_x = int(available_space_x / (2.5 * alien_width))
     return number_aliens_x
 
 
 def get_number_rows(ai_settings, ship_height, alien_height):
     """Determine the number of rows of aliens that can fit in a row"""
     available_space_y = (ai_settings.screen_height - (4 * alien_height) - ship_height)
-    number_rows = int(available_space_y / (2 * alien_height))
+    number_rows = int(available_space_y / (2.5 * alien_height))
     return number_rows
 
 
@@ -226,9 +234,9 @@ def create_alien(ai_settings, screen, aliens, alien_number, row_number):
         alien_type = 1
     alien = Alien(ai_settings, screen, alien_type)
     alien_width = alien.rect.width
-    alien.x = alien_width + 2 * alien_width * alien_number
+    alien.x = alien_width + 1.25 * alien_width * alien_number
     alien.rect.x = alien.x
-    alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+    alien.rect.y = alien.rect.height + 1.25 * alien.rect.height * row_number
     aliens.add(alien)
 
 

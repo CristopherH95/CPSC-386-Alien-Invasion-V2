@@ -31,38 +31,32 @@ class Alien(pygame.sprite.Sprite):
             self.images = []
             self.images.append((pygame.image.load('images/alien1_1.png')))
             self.images.append((pygame.image.load('images/alien1_2.png')))
-            self.image_index = 0
-            self.image = self.images[self.image_index]
             self.death_frames = []
             self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death1.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death2.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death3.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death4.png'))
-            self.rect = self.image.get_rect()
         elif self.alien_type == 2:
             self.images = []
             self.images.append((pygame.image.load('images/alien2_1.png')))
             self.images.append((pygame.image.load('images/alien2_2.png')))
-            self.image_index = 0
-            self.image = self.images[self.image_index]
             self.death_frames = []
             self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death1.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death2.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death3.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death4.png'))
-            self.rect = self.image.get_rect()
         else:
             self.images = []
             self.images.append((pygame.image.load('images/alien3_1.png')))
             self.images.append((pygame.image.load('images/alien3_2.png')))
-            self.image_index = 0
-            self.image = self.images[self.image_index]
             self.death_frames = []
             self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death1.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death2.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death3.png'))
             self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death4.png'))
-            self.rect = self.image.get_rect()
+        self.image_index = 0
+        self.image = self.images[self.image_index]
+        self.rect = self.image.get_rect()
         self.last_frame = pygame.time.get_ticks()
 
     def check_edges(self):

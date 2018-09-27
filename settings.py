@@ -22,6 +22,10 @@ class Settings:
         self.bullet_color = (255, 255, 255)
         self.bullets_allowed = 3
 
+        # bunker settings
+        self.bunker_block_size = 10
+        self.bunker_color = (0, 255, 0)
+
         # beam settings
         self.beam_speed_factor = None
         self.beams_allowed = 1

@@ -5,6 +5,7 @@ import game_functions as gf
 from game_stats import GameStats
 from scoreboard import Scoreboard
 from button import Button
+from bunker_block import make_bunker
 from settings import Settings
 from ship import Ship
 
@@ -28,6 +29,10 @@ def run_game():
     aliens = pygame.sprite.Group()
     stars = gf.create_stars(ai_settings, screen)
     gf.create_fleet(ai_settings, screen, ship, aliens)
+    bunkers = pygame.sprite.Group(make_bunker(ai_settings, screen, 0),
+                                  make_bunker(ai_settings, screen, 1),
+                                  make_bunker(ai_settings, screen, 2),
+                                  make_bunker(ai_settings, screen, 3))
 
     while True:
         gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, beams, bullets)
@@ -35,7 +40,7 @@ def run_game():
             ship.update()
             gf.update_bullets_beams(ai_settings, screen, stats, sb, ship, aliens, beams, bullets)
             gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, beams, bullets)
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, play_button, stars)
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, bunkers, play_button, stars)
 
 
 if __name__ == '__main__':
