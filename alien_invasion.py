@@ -9,6 +9,8 @@ from bunker_block import make_bunker
 from settings import Settings
 from ship import Ship
 
+# TODO: Audio more like real space invaders, time frequency check for beams, startup screen
+
 
 def run_game():
     pygame.init()
