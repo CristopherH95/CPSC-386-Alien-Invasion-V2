@@ -18,6 +18,12 @@ class Alien(pygame.sprite.Sprite):
         self.death_frames = None
         self.rect = None
         self.initialize_images()
+        # sound
+        self.death_sound = pygame.mixer.Sound('sound/alien_death.wav')
+        self.fire_sound = pygame.mixer.Sound('sound/alien_shoot.wav')
+        self.death_sound.set_volume(0.3)
+        self.fire_sound.set_volume(0.3)
+        self.channel = ai_settings.alien_channel
         # Start new aliens at top left of the screen
         self.rect.x = self.rect.width
         self.rect.y = self.rect.height
@@ -26,34 +32,44 @@ class Alien(pygame.sprite.Sprite):
         # Killed flag
         self.dead = False
 
+    def fire_weapon(self):
+        """Play the audio for the alien firing its weapon"""
+        self.channel.play(self.fire_sound)
+
     def initialize_images(self):
         if self.alien_type == 1:
-            self.images = []
-            self.images.append((pygame.image.load('images/alien1_1.png')))
-            self.images.append((pygame.image.load('images/alien1_2.png')))
-            self.death_frames = []
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death1.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death2.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death3.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_purple_death4.png'))
+            self.images = [
+                pygame.image.load('images/alien1_1.png'),
+                pygame.image.load('images/alien1_2.png')
+            ]
+            self.death_frames = [
+                pygame.image.load('images/alien_death/alien_purple_death1.png'),
+                pygame.image.load('images/alien_death/alien_purple_death2.png'),
+                pygame.image.load('images/alien_death/alien_purple_death3.png'),
+                pygame.image.load('images/alien_death/alien_purple_death4.png')
+            ]
         elif self.alien_type == 2:
-            self.images = []
-            self.images.append((pygame.image.load('images/alien2_1.png')))
-            self.images.append((pygame.image.load('images/alien2_2.png')))
-            self.death_frames = []
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death1.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death2.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death3.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_blue_death4.png'))
+            self.images = [
+                pygame.image.load('images/alien2_1.png'),
+                pygame.image.load('images/alien2_2.png')
+            ]
+            self.death_frames = [
+                pygame.image.load('images/alien_death/alien_blue_death1.png'),
+                pygame.image.load('images/alien_death/alien_blue_death2.png'),
+                pygame.image.load('images/alien_death/alien_blue_death3.png'),
+                pygame.image.load('images/alien_death/alien_blue_death4.png')
+            ]
         else:
-            self.images = []
-            self.images.append((pygame.image.load('images/alien3_1.png')))
-            self.images.append((pygame.image.load('images/alien3_2.png')))
-            self.death_frames = []
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death1.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death2.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death3.png'))
-            self.death_frames.append(pygame.image.load('images/alien_death/alien_green_death4.png'))
+            self.images = [
+                pygame.image.load('images/alien3_1.png'),
+                pygame.image.load('images/alien3_2.png')
+            ]
+            self.death_frames = [
+                pygame.image.load('images/alien_death/alien_green_death1.png'),
+                pygame.image.load('images/alien_death/alien_green_death2.png'),
+                pygame.image.load('images/alien_death/alien_green_death3.png'),
+                pygame.image.load('images/alien_death/alien_green_death4.png')
+            ]
         self.image_index = 0
         self.image = self.images[self.image_index]
         self.rect = self.image.get_rect()
@@ -75,6 +91,7 @@ class Alien(pygame.sprite.Sprite):
         self.death_index = 0
         self.image = self.death_frames[self.death_index]
         self.last_frame = pygame.time.get_ticks()
+        self.channel.play(self.death_sound)
 
     def update(self):
         """Move alien to the right or left, play idle animations or death animations"""
