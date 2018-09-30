@@ -37,6 +37,7 @@ def check_play_button(ai_settings, screen, stats, sb, play_button,
         # Reset game stats
         stats.reset_stats()
         stats.game_active = True
+        pygame.mixer.music.play(loops=-1)
         # Reset scoreboard images
         sb.prep_score()
         sb.prep_high_score()
@@ -116,6 +117,9 @@ def check_alien_bullet_collisions(ai_settings, screen, stats, sb, ship, aliens, 
         check_high_score(stats, sb)
     if len(aliens) == 0:
         # destroy all existing bullets and re-create fleet, increase speed
+        if ufo:
+            for u in ufo.sprites():
+                u.kill()    # kill any UFOs before start of new level
         beams.empty()
         bullets.empty()
         ai_settings.increase_speed()
@@ -225,6 +229,8 @@ def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, beams, ufo):
         # Update scoreboard
         sb.prep_ships()
     else:
+        pygame.mixer.music.load('sound/game-end.wav')
+        pygame.mixer.music.play()
         stats.game_active = False
         stats.save_high_score()
         pygame.mouse.set_visible(True)

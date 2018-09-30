@@ -51,6 +51,7 @@ class Settings:
 
         # How quickly the game speeds up
         self.speedup_scale = 1.1
+        # initialize dynamics
         self.initialize_dynamic_settings()
         self.initialize_audio_settings()
 
@@ -72,6 +73,8 @@ class Settings:
         """Initialize pygame audio settings"""
         mixer.init()
         mixer.set_num_channels(self.audio_channels)
+        mixer.music.load('sound/space-invaders-bgm.wav')
+        mixer.music.set_volume(0.75)
 
     def increase_speed(self):
         """Increase speed settings and point values"""
