@@ -143,8 +143,14 @@ def check_ship_beam_collisions(ai_settings, screen, stats, sb, ship, aliens, bea
 
 def check_bunker_collisions(beams, bullets, bunkers):
     """Check if any beams or bullets have collided with the bunkers"""
-    pygame.sprite.groupcollide(bullets, bunkers, True, True)
-    pygame.sprite.groupcollide(beams, bunkers, True, True)
+    collisions = pygame.sprite.groupcollide(bullets, bunkers, True, False)
+    for b_list in collisions.values():
+        for block in b_list:
+            block.damage(top=False)
+    collisions = pygame.sprite.groupcollide(beams, bunkers, True, False)
+    for b_list in collisions.values():
+        for block in b_list:
+            block.damage(top=True)
 
 
 def update_bullets_beams(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, ufo):
@@ -364,9 +370,8 @@ def startup_screen(ai_settings, game_stats, screen):
     """Display the startup menu on the screen, return False if the user wishes to quit,
     True if they are ready to play"""
     menu = Intro(ai_settings, game_stats, screen)
-    menu.prep_image()
-    play_button = Button(ai_settings, screen, 'Play Game')
-    hs_button = Button(ai_settings, screen, 'High Scores', y_factor=0.75)
+    play_button = Button(ai_settings, screen, 'Play Game', y_factor=0.70)
+    hs_button = Button(ai_settings, screen, 'High Scores', y_factor=0.80)
     intro = True
 
     while intro:

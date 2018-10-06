@@ -1,5 +1,5 @@
-from pygame import sprite
-from pygame import Surface
+from pygame import sprite, Surface, PixelArray
+from random import randrange
 
 
 class BunkerBlock(sprite.Sprite):
@@ -15,6 +15,25 @@ class BunkerBlock(sprite.Sprite):
         self.rect = self.image.get_rect()
         self.row = row
         self.col = col
+        self.dmg = False
+
+    def damage(self, top):
+        """If the block is not already damaged,
+        make random pixels (limited to direction the damage is coming from) transparent to show damage.
+        If the block is already damaged, kill it so that projectiles can pass through later."""
+        if not self.dmg:
+            px_array = PixelArray(self.image)
+            if top:
+                for i in range(self.height * 3):
+                    px_array[randrange(0, self.width - 1),
+                             randrange(0, self.height // 2)] = (0, 0, 0, 0)  # transparent pixel
+            else:
+                for i in range(self.height * 3):
+                    px_array[randrange(0, self.width - 1),
+                             randrange(self.height // 2, self.height - 1)] = (0, 0, 0, 0)   # transparent pixel
+            self.dmg = True
+        else:
+            self.kill()
 
     def update(self):
         self.screen.blit(self.image, self.rect)
