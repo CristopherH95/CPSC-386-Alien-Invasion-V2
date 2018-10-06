@@ -8,7 +8,7 @@ class Ship(pygame.sprite.Sprite):
         self.screen = screen
         self.ai_settings = ai_settings
         # Load ship image and set rect attributes
-        self.ship_image = pygame.image.load('images/space-invaders-ship.png')
+        self.ship_image = pygame.image.load('images/ship.png')
         self.image = self.ship_image
         self.death_images = [
             pygame.image.load('images/ship_death/ship_death1.png'),
@@ -16,7 +16,9 @@ class Ship(pygame.sprite.Sprite):
             pygame.image.load('images/ship_death/ship_death3.png'),
             pygame.image.load('images/ship_death/ship_death4.png'),
             pygame.image.load('images/ship_death/ship_death5.png'),
-            pygame.image.load('images/ship_death/ship_death6.png')
+            pygame.image.load('images/ship_death/ship_death6.png'),
+            pygame.image.load('images/ship_death/ship_death7.png'),
+            pygame.image.load('images/ship_death/ship_death8.png')
         ]
         self.death_index = None
         self.last_frame = None
