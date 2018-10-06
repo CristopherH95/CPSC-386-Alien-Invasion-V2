@@ -9,6 +9,7 @@ class Alien(pygame.sprite.Sprite):
         self.screen = screen
         self.ai_settings = ai_settings
         self.alien_type = alien_type
+
         # Load alien image and set rect attribute
         self.images = None
         self.image = None
@@ -18,17 +19,21 @@ class Alien(pygame.sprite.Sprite):
         self.death_frames = None
         self.rect = None
         self.initialize_images()
+
         # sound
         self.death_sound = pygame.mixer.Sound('sound/alien_death.wav')
         self.fire_sound = pygame.mixer.Sound('sound/alien_shoot.wav')
-        self.death_sound.set_volume(0.3)
-        self.fire_sound.set_volume(0.3)
+        self.death_sound.set_volume(0.4)
+        self.fire_sound.set_volume(0.4)
         self.channel = ai_settings.alien_channel
+
         # Start new aliens at top left of the screen
         self.rect.x = self.rect.width
         self.rect.y = self.rect.height
+
         # Store alien's exact position
         self.x = float(self.rect.x)
+
         # Killed flag
         self.dead = False
 

@@ -113,25 +113,24 @@ def check_alien_bullet_collisions(ai_settings, screen, stats, sb, ship, aliens, 
             sb.prep_score()
         check_high_score(stats, sb)
     if len(aliens) == 0:
-        # destroy all existing bullets and re-create fleet, reset speed
+        # destroy all existing bullets and re-create fleet, reset speed, increase starting speed
         if ufo:
             for u in ufo.sprites():
                 u.kill()    # kill any UFOs before start of new level
         beams.empty()
         bullets.empty()
         stats.level += 1
-        level_intro(ai_settings, screen, stats)
+        level_intro(ai_settings, screen, stats)     # play an intro for the level
+        ai_settings.increase_base_speed()       # increase base speed, reset speed to base
         ai_settings.reset_alien_speed()
-        sb.prep_level()
+        sb.prep_level()     # setup scoreboard
         create_fleet(ai_settings, screen, ship, aliens)
-        stats.next_speedup = len(aliens) - (len(aliens) // 5)
+        stats.next_speedup = len(aliens) - (len(aliens) // 5)   # Get next number of aliens to speedup at
     stats.aliens_left = len(aliens)
     if stats.aliens_left <= stats.next_speedup and ai_settings.alien_speed_factor < ai_settings.alien_speed_limit:
-        print('speedup')
+        # If the number of aliens left is low enough, and we haven't already hit the limit, speed up aliens
         ai_settings.increase_alien_speed()
-        print('new speed: ' + str(ai_settings.alien_speed_factor))
         stats.next_speedup = stats.aliens_left - (stats.aliens_left // 5)
-        print('next speedup: ' + str(stats.next_speedup))
 
 
 def check_ship_beam_collisions(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, ufo):

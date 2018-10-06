@@ -42,9 +42,10 @@ class Settings:
         self.music_interval = self.normal_music_interval
         self.music_speedup = 25
         self.bgm = [
-            # mixer.Sound('sound/bgm_1.wav'),
+            mixer.Sound('sound/bgm_1.wav'),
             mixer.Sound('sound/bgm_2.wav'),
-            mixer.Sound('sound/bgm_3.wav')
+            mixer.Sound('sound/bgm_3.wav'),
+            mixer.Sound('sound/bgm_4.wav')
         ]
         self.bgm_index = None
         self.last_beat = None
@@ -52,6 +53,7 @@ class Settings:
         # alien settings
         self.normal_alien_speed = 2
         self.alien_speed_limit = None
+        self.alien_base_limit = None
         self.alien_speed_factor = None
         self.ufo_speed = None
         self.last_ufo = None
@@ -65,6 +67,7 @@ class Settings:
 
         # How quickly the game speeds up
         self.speedup_scale = 1.1
+
         # initialize dynamics
         self.initialize_dynamic_settings()
         self.initialize_audio_settings()
@@ -76,6 +79,7 @@ class Settings:
         self.beam_speed_factor = 2
         self.alien_speed_factor = self.normal_alien_speed
         self.alien_speed_limit = self.alien_speed_factor * 5
+        self.alien_base_limit = self.alien_speed_limit / 2
         self.ufo_speed = self.alien_speed_factor * 2
 
         # scoring
@@ -103,17 +107,23 @@ class Settings:
             self.last_beat = time.get_ticks()
 
     def stop_bgm(self):
-        """Stop the background music that is currently playing"""
+        """Stop whatever background music is currently playing"""
         self.music_channel.stop()
         self.last_beat = None
         self.bgm_index = None
 
+    def increase_base_speed(self):
+        """Increase the starting speed for aliens"""
+        if self.normal_alien_speed < self.alien_base_limit:
+            self.normal_alien_speed *= self.speedup_scale
+            self.normal_music_interval -= self.music_speedup
+
     def increase_alien_speed(self):
-        """Increase alien speed settings and point values"""
+        """Increase alien and music speed"""
         self.alien_speed_factor *= self.speedup_scale
         self.music_interval -= self.music_speedup
 
     def reset_alien_speed(self):
-        """Reset alien speed back to its base value"""
+        """Reset alien and music speed back to its base value"""
         self.alien_speed_factor = self.normal_alien_speed
         self.music_interval = self.normal_music_interval
