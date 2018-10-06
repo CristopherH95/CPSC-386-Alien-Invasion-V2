@@ -12,7 +12,7 @@ OR
 
 pip install -r requirements.txt
 
-TO RUN: execute alien_invasion.py (e.g.: run 'python space_invaders.py')
+TO RUN: execute space_invaders.py (e.g.: run 'python space_invaders.py')
 
 NOTES:
 
