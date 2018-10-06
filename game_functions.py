@@ -5,51 +5,48 @@ import random
 from alien import Alien
 from bullet import Bullet
 from beam import Beam
+from high_scores import HighScoreScreen
+from intro import Button, Intro, level_intro
 from ufo import Ufo
 from star import Star
 
 
-def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, beams, bullets):
+def check_events(ai_settings, screen, stats, ship, bullets):
     """Handle key presses and mouse events"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             stats.save_high_score()
             sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(ai_settings, screen, stats, sb, play_button,
-                              ship, aliens, beams, bullets, mouse_x, mouse_y)
         elif event.type == pygame.KEYDOWN:
             check_keydown_events(event, ai_settings, screen, stats.game_active, ship, bullets)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
 
 
-def check_play_button(ai_settings, screen, stats, sb, play_button,
-                      ship, aliens, beams, bullets, mouse_x, mouse_y):
+def start_new_game(ai_settings, screen, stats, sb,
+                   ship, aliens, beams, bullets):
     """Start a new game when the play button is clicked"""
-    button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
-    if button_clicked and not stats.game_active:
-        # Hide the mouse
-        pygame.mouse.set_visible(False)
-        # Reset settings
-        ai_settings.initialize_dynamic_settings()
-        # Reset game stats
-        stats.reset_stats()
-        stats.game_active = True
-        pygame.mixer.music.play(loops=-1)
-        # Reset scoreboard images
-        sb.prep_score()
-        sb.prep_high_score()
-        sb.prep_level()
-        sb.prep_ships()
-        # Remove all aliens and bullets
-        aliens.empty()
-        bullets.empty()
-        beams.empty()
-        # Create new alien fleet and center the ship
-        create_fleet(ai_settings, screen, ship, aliens)
-        ship.center_ship()
+    # Hide the mouse
+    pygame.mouse.set_visible(False)
+    # Reset settings
+    ai_settings.initialize_dynamic_settings()
+    # Reset game stats
+    stats.reset_stats()
+    stats.game_active = True
+    # Reset scoreboard images
+    sb.prep_score()
+    sb.prep_high_score()
+    sb.prep_level()
+    sb.prep_ships()
+    # Remove all aliens and bullets
+    aliens.empty()
+    bullets.empty()
+    beams.empty()
+    # Create new alien fleet and center the ship
+    create_fleet(ai_settings, screen, ship, aliens)
+    stats.next_speedup = len(aliens) - (len(aliens) // 5)
+    stats.aliens_left = len(aliens)
+    ship.center_ship()
 
 
 def check_keydown_events(event, ai_settings, screen, game_active, ship, bullets):
@@ -101,8 +98,8 @@ def check_alien_bullet_collisions(ai_settings, screen, stats, sb, ship, aliens, 
     """Check that any aliens have been hit, handle empty fleet condition"""
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, False, collided=alien_collision_check)
     if collisions:
-        for aliens in collisions.values():
-            for a in aliens:
+        for aliens_hit in collisions.values():
+            for a in aliens_hit:
                 stats.score += ai_settings.alien_points[str(a.alien_type)]
                 a.begin_death()
             sb.prep_score()
@@ -116,16 +113,25 @@ def check_alien_bullet_collisions(ai_settings, screen, stats, sb, ship, aliens, 
             sb.prep_score()
         check_high_score(stats, sb)
     if len(aliens) == 0:
-        # destroy all existing bullets and re-create fleet, increase speed
+        # destroy all existing bullets and re-create fleet, reset speed
         if ufo:
             for u in ufo.sprites():
                 u.kill()    # kill any UFOs before start of new level
         beams.empty()
         bullets.empty()
-        ai_settings.increase_speed()
         stats.level += 1
+        level_intro(ai_settings, screen, stats)
+        ai_settings.reset_alien_speed()
         sb.prep_level()
         create_fleet(ai_settings, screen, ship, aliens)
+        stats.next_speedup = len(aliens) - (len(aliens) // 5)
+    stats.aliens_left = len(aliens)
+    if stats.aliens_left <= stats.next_speedup and ai_settings.alien_speed_factor < ai_settings.alien_speed_limit:
+        print('speedup')
+        ai_settings.increase_alien_speed()
+        print('new speed: ' + str(ai_settings.alien_speed_factor))
+        stats.next_speedup = stats.aliens_left - (stats.aliens_left // 5)
+        print('next speedup: ' + str(stats.next_speedup))
 
 
 def check_ship_beam_collisions(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, ufo):
@@ -163,7 +169,7 @@ def check_high_score(stats, sb):
         sb.prep_high_score()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, bunkers, play_button, stars, ufo_group):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, bunkers, stars, ufo_group):
     """Update images on the screen and flip to new screen"""
     if stats.game_active:
         ufo_event_check(ai_settings, screen, ufo_group)
@@ -185,8 +191,6 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, 
     sb.show_score()
     ship.blitme()
     bunkers.update()
-    if not stats.game_active:
-        play_button.draw_button()
     pygame.display.flip()
 
 
@@ -224,11 +228,15 @@ def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, beams, ufo):
         bullets.empty()
         beams.empty()
         # Re-create fleet and center ship
+        ai_settings.reset_alien_speed()
         create_fleet(ai_settings, screen, ship, aliens)
+        stats.next_speedup = len(aliens) - (len(aliens) // 5)
+        stats.aliens_left = len(aliens.sprites())
         ship.center_ship()
         # Update scoreboard
         sb.prep_ships()
     else:
+        ai_settings.stop_bgm()
         pygame.mixer.music.load('sound/game-end.wav')
         pygame.mixer.music.play()
         stats.game_active = False
@@ -306,10 +314,9 @@ def check_fleet_edges(ai_settings, aliens):
 def create_random_ufo(ai_settings, screen):
     """With a chance of 10% create a Ufo and return it with the time it was created"""
     ufo = None
-    time_stamp = None
-    if random.randrange(0, 100) <= 10:  # 10% chance of ufo
+    if random.randrange(0, 100) <= 15:  # 15% chance of ufo
         ufo = Ufo(ai_settings, screen)
-        time_stamp = pygame.time.get_ticks()
+    time_stamp = pygame.time.get_ticks()
     return time_stamp, ufo
 
 
@@ -332,3 +339,60 @@ def create_stars(ai_settings, screen):
         new_star = Star(ai_settings, screen)
         stars.add(new_star)
     return stars
+
+
+def high_score_screen(ai_settings, game_stats, screen):
+    """Display all high scores in a separate screen with a back button"""
+    hs_screen = HighScoreScreen(ai_settings, screen, game_stats)
+    back_button = Button(ai_settings, screen, 'Back To Menu', y_factor=0.85)
+
+    while True:
+        back_button.alter_text_color(*pygame.mouse.get_pos())
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if back_button.check_button(*pygame.mouse.get_pos()):
+                    return True
+        screen.fill(ai_settings.bg_color)
+        hs_screen.show_scores()
+        back_button.draw_button()
+        pygame.display.flip()
+
+
+def startup_screen(ai_settings, game_stats, screen):
+    """Display the startup menu on the screen, return False if the user wishes to quit,
+    True if they are ready to play"""
+    menu = Intro(ai_settings, game_stats, screen)
+    menu.prep_image()
+    play_button = Button(ai_settings, screen, 'Play Game')
+    hs_button = Button(ai_settings, screen, 'High Scores', y_factor=0.75)
+    intro = True
+
+    while intro:
+        play_button.alter_text_color(*pygame.mouse.get_pos())
+        hs_button.alter_text_color(*pygame.mouse.get_pos())
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_x, click_y = pygame.mouse.get_pos()
+                game_stats.game_active = play_button.check_button(click_x, click_y)
+                intro = not game_stats.game_active
+                if hs_button.check_button(click_x, click_y):
+                    ret_hs = high_score_screen(ai_settings, game_stats, screen)
+                    if not ret_hs:
+                        return False
+        screen.fill(ai_settings.bg_color)
+        menu.show_menu()
+        hs_button.draw_button()
+        play_button.draw_button()
+        pygame.display.flip()
+
+    return True
+
+
+def play_bgm(ai_settings, stats):
+    """Check that the game is still active before continue the background music"""
+    if stats.game_active:
+        ai_settings.continue_bgm()

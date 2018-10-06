@@ -1,4 +1,5 @@
 from pygame import mixer
+from pygame import time
 
 
 class Settings:
@@ -31,17 +32,30 @@ class Settings:
         self.beams_allowed = 1
 
         # sound settings
-        self.audio_channels = 4
+        self.audio_channels = 5
         self.ship_channel = mixer.Channel(0)
         self.alien_channel = mixer.Channel(1)
         self.death_channel = mixer.Channel(2)
         self.ufo_channel = mixer.Channel(3)
+        self.music_channel = mixer.Channel(4)
+        self.normal_music_interval = 725
+        self.music_interval = self.normal_music_interval
+        self.music_speedup = 25
+        self.bgm = [
+            # mixer.Sound('sound/bgm_1.wav'),
+            mixer.Sound('sound/bgm_2.wav'),
+            mixer.Sound('sound/bgm_3.wav')
+        ]
+        self.bgm_index = None
+        self.last_beat = None
 
         # alien settings
+        self.normal_alien_speed = 2
+        self.alien_speed_limit = None
         self.alien_speed_factor = None
         self.ufo_speed = None
         self.last_ufo = None
-        self.ufo_min_interval = 30000
+        self.ufo_min_interval = 10000
         self.fleet_drop_speed = 10
         self.fleet_direction = None
         self.alien_points = None
@@ -60,7 +74,8 @@ class Settings:
         self.ship_speed_factor = 6
         self.bullet_speed_factor = 10
         self.beam_speed_factor = 2
-        self.alien_speed_factor = 2
+        self.alien_speed_factor = self.normal_alien_speed
+        self.alien_speed_limit = self.alien_speed_factor * 5
         self.ufo_speed = self.alien_speed_factor * 2
 
         # scoring
@@ -73,11 +88,32 @@ class Settings:
         """Initialize pygame audio settings"""
         mixer.init()
         mixer.set_num_channels(self.audio_channels)
-        mixer.music.load('sound/space-invaders-bgm.wav')
-        mixer.music.set_volume(0.75)
+        self.music_channel.set_volume(0.7)
 
-    def increase_speed(self):
-        """Increase speed settings and point values"""
-        self.ship_speed_factor *= self.speedup_scale
-        self.bullet_speed_factor *= self.speedup_scale
+    def continue_bgm(self):
+        """Create the background music by playing sound over the music channel"""
+        if not self.last_beat:  # Music just started, initialize markers
+            self.bgm_index = 0
+            self.music_channel.play(self.bgm[self.bgm_index])
+            self.last_beat = time.get_ticks()
+        elif abs(self.last_beat - time.get_ticks()) > self.music_interval and not self.music_channel.get_busy():
+            # Music continuing
+            self.bgm_index = (self.bgm_index + 1) % len(self.bgm)
+            self.music_channel.play(self.bgm[self.bgm_index])
+            self.last_beat = time.get_ticks()
+
+    def stop_bgm(self):
+        """Stop the background music that is currently playing"""
+        self.music_channel.stop()
+        self.last_beat = None
+        self.bgm_index = None
+
+    def increase_alien_speed(self):
+        """Increase alien speed settings and point values"""
         self.alien_speed_factor *= self.speedup_scale
+        self.music_interval -= self.music_speedup
+
+    def reset_alien_speed(self):
+        """Reset alien speed back to its base value"""
+        self.alien_speed_factor = self.normal_alien_speed
+        self.music_interval = self.normal_music_interval

@@ -6,6 +6,9 @@ class GameStats:
     def __init__(self, ai_settings):
         self.ai_settings = ai_settings
         self.ships_left = 0
+        self.aliens_start = None
+        self.next_speedup = None
+        self.aliens_left = None
         self.high_score = None
         self.high_scores_all = None
         self.score = None

@@ -5,7 +5,7 @@ from random import choice
 
 class Ufo(pygame.sprite.Sprite):
     """Represents a UFO meant to move across the screen at random intervals"""
-    def __init__(self, ai_settings, screen):
+    def __init__(self, ai_settings, screen, sound=True):
         super().__init__()
         # screen, settings, score values
         self.screen = screen
@@ -42,7 +42,8 @@ class Ufo(pygame.sprite.Sprite):
         # death flag
         self.dead = False
 
-        self.channel.play(self.entrance_sound, loops=-1)
+        if sound:
+            self.channel.play(self.entrance_sound, loops=-1)
 
     def kill(self):
         self.channel.stop()
@@ -81,7 +82,7 @@ class Ufo(pygame.sprite.Sprite):
                     self.kill()
                 else:
                     self.image = self.death_frames[self.death_index]
-                    self.wait_interval += 350
+                    self.wait_interval += 500
 
     def blitme(self):
         self.screen.blit(self.image, self.rect)

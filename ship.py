@@ -26,7 +26,7 @@ class Ship(pygame.sprite.Sprite):
         self.rect.bottom = self.screen_rect.bottom
         # sound
         self.ship_death_sound = pygame.mixer.Sound('sound/ship_death.wav')
-        self.ship_shoot = pygame.mixer.Sound('sound/space-invaders-shoot.wav')
+        self.ship_shoot = pygame.mixer.Sound('sound/ship_shoot.wav')
         self.ship_death_sound.set_volume(0.5)
         self.ship_shoot.set_volume(0.5)
         self.channel = ai_settings.ship_channel

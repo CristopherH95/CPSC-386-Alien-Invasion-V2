@@ -4,12 +4,9 @@ import game_functions as gf
 
 from game_stats import GameStats
 from scoreboard import Scoreboard
-from button import Button
 from bunker import make_bunker
 from settings import Settings
 from ship import Ship
-
-# TODO: Audio more like real space invaders, time frequency check for beams, startup screen
 
 
 def run_game():
@@ -19,7 +16,6 @@ def run_game():
         (ai_settings.screen_width, ai_settings.screen_height)
     )
     pygame.display.set_caption('Alien Invasion')
-    play_button = Button(ai_settings, screen, 'Play')
     clock = pygame.time.Clock()
 
     # Setup game stats and scoreboard
@@ -40,12 +36,19 @@ def run_game():
 
     while True:
         clock.tick(70)  # 70 fps limit
-        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, beams, bullets)
+        if not stats.game_active:
+            quit_game = not gf.startup_screen(ai_settings, stats, screen)
+            if quit_game:
+                pygame.quit()
+                break
+            gf.start_new_game(ai_settings, screen, stats, sb, ship, aliens, beams, bullets)
+        gf.check_events(ai_settings, screen, stats, ship, bullets)
         if stats.game_active:
             ship.update()
             gf.update_bullets_beams(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, ufo)
             gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, ufo)
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, bunkers, play_button, stars, ufo)
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, beams, bullets, bunkers, stars, ufo)
+        gf.play_bgm(ai_settings, stats)
 
 
 if __name__ == '__main__':
