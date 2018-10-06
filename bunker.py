@@ -44,7 +44,9 @@ def make_bunker(ai_settings, screen, position):
     bunker = sprite.Group()
     for row in range(5):
         for col in range(9):
-            # Don't draw full rows of blocks on last two rows, to style the bunker
+            # Don't draw full rows of blocks on last two rows
+            # Don't draw full rows of blocks on the top row
+            # Gives the bunker its signature shape
             if not ((row > 3 and (1 < col < 7)) or
                     (row > 2 and (2 < col < 6)) or
                     (row == 0 and (col < 1 or col > 7))):
