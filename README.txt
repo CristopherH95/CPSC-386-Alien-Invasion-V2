@@ -1,3 +1,4 @@
+Space Invaders remake in pygame
 Written By: Cristopher Hernandez
 With assistance through: Python Crash Course by Eric Matthes
 
@@ -11,7 +12,7 @@ OR
 
 pip install -r requirements.txt
 
-TO RUN: execute alien_invasion.py (e.g.: run 'python alien_invasion.py')
+TO RUN: execute alien_invasion.py (e.g.: run 'python space_invaders.py')
 
 NOTES:
 
